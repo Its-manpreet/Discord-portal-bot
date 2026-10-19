@@ -1,0 +1,20 @@
+{
+  "name": "discord-linker",
+  "module": "index.js",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest",
+    "eslint": "^10.13.0"
+  },
+  "scripts": {
+    "dev": "bun --watch run --env-file .env index.js",
+    "deploy": "bun run --env-file .env deploy-commands.js"
+  },
+  "peerDependencies": {
+    "typescript": "^7"
+  },
+  "dependencies": {
+    "discord.js": "^14.27.0"
+  }
+}
