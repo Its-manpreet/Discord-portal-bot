@@ -1,3 +1,6 @@
+# Discord bot files
+links.sqlite
+
 # dependencies (bun install)
 node_modules
 
