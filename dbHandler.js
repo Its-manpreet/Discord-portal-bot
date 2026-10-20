@@ -17,10 +17,18 @@ db.run(`
         webhook_token TEXT NOT NULL
     )
     `)
+db.run(`
+    CREATE TABLE IF NOT EXISTS sticky_messages (
+        channel_id TEXT PRIMARY KEY,
+        message_id TEXT NOT NULL
+    )
+  `)
 
 // sourceChannelId -> Set of targetChannelIds
 const links = new Map();
 const webhooks = new Map();
+const stickyMessages = new Map();
+const messageToWebhookMap = new Map(); // messageId -> { webhookId, webhookToken, targetChannelId, webhookMessageId }
 
 function addToMap(source, target) {
   if (!links.has(source)) links.set(source, new Set());
@@ -48,6 +56,10 @@ for (const row of db.query("SELECT * FROM links").all()) {
 
 for (const row of db.query("SELECT * FROM webhooks").all()) {
   addToWebhookMap(row.channel_id, row.webhook_id, row.webhook_token);
+}
+
+for (const row of db.query("SELECT * FROM sticky_messages").all()) {
+  stickyMessages.set(row.channel_id, row.message_id);
 }
 
 const insert = db.prepare("INSERT OR IGNORE INTO links VALUES (?, ?)");
@@ -88,4 +100,33 @@ export function addWebhook(channelId, webhookId, webhookToken) {
 export function removeWebhook(channelId) {
   db.run("DELETE FROM webhooks WHERE channel_id = ?", channelId);
   removeFromWebhookMap(channelId);
+}
+
+export function getStickyMessage(channelId) {
+  return stickyMessages.get(channelId); // messageId or undefined
+}
+
+export function setStickyMessage(channelId, messageId) {
+  stickyMessages.set(channelId, messageId);
+  db.run("INSERT OR REPLACE INTO sticky_messages VALUES (?, ?)", channelId, messageId);
+}
+
+export function removeStickyMessage(channelId) {
+  db.run("DELETE FROM sticky_messages WHERE channel_id = ?", channelId);
+  stickyMessages.delete(channelId);
+}
+
+export function removeMessageFromWebhookMap(messageId) {
+  messageToWebhookMap.delete(messageId);
+}
+
+export function addMessageToWebhookMap(messageId, webhookId, webhookToken, targetChannelId, webhookMessageId) {
+  messageToWebhookMap.set(messageId, { webhookId, webhookToken, targetChannelId, webhookMessageId });
+  setTimeout(() => {
+    messageToWebhookMap.delete(messageId);
+  }, 5 * 60 * 1000); // Remove after 5 minutes
+}
+
+export function getMessageFromWebhookMap(messageId) {
+  return messageToWebhookMap.get(messageId); // { webhookId, webhookToken, targetChannelId, webhookMessageId } or undefined
 }
