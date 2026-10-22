@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, ChannelType, MessageFlags, PermissionsBitField } = require("discord.js");
-const { removeLink, removeWebhook, removeStickyMessage, getStickyMessage } = require("../../dbHandler.js");
+const { removeLink, removeWebhook, removeStickyMessage, getStickyMessage, getTargets } = require("../../dbHandler.js");
 
 module.exports = {
   cooldown: 5, 
@@ -27,6 +27,10 @@ module.exports = {
     }
 
     await interaction.deferReply({ });
+
+    if (!getTargets(a.id)?.includes(b.id)) {
+      return interaction.editReply(`The channels ${a} and ${b} are not linked.`);
+    }
 
     removeLink(a.id, b.id);
     removeWebhook(a.id);

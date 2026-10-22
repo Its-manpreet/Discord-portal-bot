@@ -25,10 +25,11 @@ db.run(`
   `)
 
 // sourceChannelId -> Set of targetChannelIds
-const links = new Map();
-const webhooks = new Map();
-const stickyMessages = new Map();
+const links = new Map(); // channelId -> Set of linked channelIds
+const webhooks = new Map(); // channelId -> { webhookId, webhookToken }
+const stickyMessages = new Map(); // channelId -> messageId
 const messageToWebhookMap = new Map(); // messageId -> { webhookId, webhookToken, targetChannelId, webhookMessageId }
+const linkPending = new Map(); // sourceChannelId -> targetChannelId
 
 function addToMap(source, target) {
   if (!links.has(source)) links.set(source, new Set());
@@ -129,4 +130,16 @@ export function addMessageToWebhookMap(messageId, webhookId, webhookToken, targe
 
 export function getMessageFromWebhookMap(messageId) {
   return messageToWebhookMap.get(messageId); // { webhookId, webhookToken, targetChannelId, webhookMessageId } or undefined
+}
+
+export function setLinkPending(sourceChannelId, targetChannelId) {
+  linkPending.set(sourceChannelId, targetChannelId);
+}
+
+export function getLinkPending(sourceChannelId) {
+  return linkPending.get(sourceChannelId); // targetChannelId or undefined
+}
+
+export function removeLinkPending(sourceChannelId) {
+  linkPending.delete(sourceChannelId);
 }

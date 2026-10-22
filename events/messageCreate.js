@@ -34,6 +34,7 @@ module.exports = {
                     username: message.author.username,
                     avatarURL: message.author.displayAvatarURL(),
                     flags: MessageFlags.SuppressEmbeds,
+                    allowedMentions: { parse: ["users"] },
                 });
 
                 addMessageToWebhookMap(message.id, webhook.webhookId, webhook.webhookToken, channel.id, webhookMessage.id);

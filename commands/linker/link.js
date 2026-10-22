@@ -1,8 +1,8 @@
 const { SlashCommandBuilder, ChannelType, MessageFlags, PermissionsBitField } = require("discord.js");
-const { addLink, addWebhook, setStickyMessage } = require("../../dbHandler.js");
+const { addLink, addWebhook, setStickyMessage, setLinkPending } = require("../../dbHandler.js");
 
 module.exports = {
-  cooldown: 5,
+  cooldown: 10,
   data: new SlashCommandBuilder()
     .setName("link")
     .setDescription("Link two channels together")
@@ -53,32 +53,21 @@ module.exports = {
     try {
       await interaction.deferReply({ });
 
-      const webhookA = await a.createWebhook({
-        name: "portal-webhook",
-      })
-        .catch(console.error);
-      const webhookB = await b.createWebhook({
-        name: "portal-webhook",
-      })
-        .catch(console.error);
-
-      if (!webhookA || !webhookB) {
-        return interaction.editReply({
-          content: "An error occurred while creating webhooks. Does the bot have permission to create webhooks in both channels?",
-          flags: MessageFlags.Ephemeral,
-        });
-      }
-
-      addWebhook(a.id, webhookA.id, webhookA.token);
-      addWebhook(b.id, webhookB.id, webhookB.token);
-      addLink(a.id, b.id);
       
-      stickyA = await a.send(`This channel is linked to another channel (<#${b.id}>). To unlink, use the \`/unlink\` command.`);
-      stickyB = await b.send(`This channel is linked to another channel (<#${a.id}>). To unlink, use the \`/unlink\` command.`);
-      setStickyMessage(a.id, stickyA.id);
-      setStickyMessage(b.id, stickyB.id);
-
-      await interaction.editReply(`Linked ${a} ↔ ${b}`);
+      if (a == interaction.channel) {
+        setLinkPending(b.id, a.id);
+        await b.send(`The channel <#${a.id}> wants to link with this channel. To accept, use the \`/allow\` (to deny use \`/deny\`) command in this channel.`);
+      } else if (b == interaction.channel) {
+        setLinkPending(a.id, b.id);
+        await a.send(`The channel <#${b.id}> wants to link with this channel. To accept, use the \`/allow\` (to deny use \`/deny\`) command in this channel.`);
+      }
+      else {
+        setLinkPending(a.id, b.id);
+        setLinkPending(b.id, a.id);
+        await a.send(`The channel <#${b.id}> wants to link with this channel. To accept, use the \`/allow\` (to deny use \`/deny\`) command in this channel.`);
+        await b.send(`The channel <#${a.id}> wants to link with this channel. To accept, use the \`/allow\` (to deny use \`/deny\`) command in this channel.`);
+      }
+      await interaction.editReply(`Linking ${a} ↔ ${b}. Please accept the link (\`/allow\`) in the other channel to respond.`);
     } catch (error) {
       console.error(error);
       await interaction.editReply({
