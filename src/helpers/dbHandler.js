@@ -189,8 +189,8 @@ export function setLookingForRandom(channelId, properties) {
 	); // Remove after 5 minutes
 }
 
-export function getLookingForRandom(channelId) {
-	return lookingForRandom.get(channelId); // properties or undefined
+export function getLookingForRandom(filter=null) {
+	return lookingForRandom.keys()
 }
 
 export function removeLookingForRandom(channelId) {

@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, ChannelType, MessageFlags, PermissionsBitField } = require("discord.js");
-const { addLink, addWebhook, setStickyMessage, getLinkPending, removeLinkPending } = require("../../dbHandler.js");
+const { addLink, addWebhook, setStickyMessage, getLinkPending, removeLinkPending } = require("../../helpers/dbHandler.js");
 
 module.exports = {
 	cooldown: 5,

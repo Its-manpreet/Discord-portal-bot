@@ -1,5 +1,6 @@
-const { SlashCommandBuilder, ChannelType, MessageFlags, PermissionsBitField } = require("discord.js");
-const { addRandomAllowedChannel, getRandomAllowedChannel, removeRandomAllowedChannel } = require("../../dbHandler.js");
+const { SlashCommandBuilder, ChannelType, MessageFlags, PermissionsBitField, WebhookClient } = require("discord.js");
+const { addRandomAllowedChannel, getRandomAllowedChannel, removeRandomAllowedChannel,
+		addWebhook, removeWebhook, getWebhook } = require("../../helpers/dbHandler.js");
 
 module.exports = {
 	cooldown: 10,
@@ -40,9 +41,22 @@ module.exports = {
 
 			if (getRandomAllowedChannel(channel.id)) {
 				removeRandomAllowedChannel(channel.id);
+				const webhook = getWebhook(channel.id);
+				if (webhook) {
+					const webhookClient = new WebhookClient({
+						id: webhook.webhookId,
+						token: webhook.webhookToken,
+					});
+					webhookClient.delete().catch(console.error);
+					removeWebhook(channel.id);
+				}
 				await interaction.editReply(`The channel <#${channel.id}> is now disallowed to be linked with random channels.`);
 			} else {
 				addRandomAllowedChannel(channel.id, { age_limit: interaction.options.getNumber("age-limit") || 0 });
+				const webhook = await channel.createWebhook({
+					name: "portal-webhook",
+				}).catch(console.error);
+				addWebhook(channel.id, webhook.id, webhook.token);
 				await interaction.editReply(`The channel <#${channel.id}> is now allowed to be linked with random channels.`);
 			}
 

@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, ChannelType, MessageFlags, PermissionsBitField } = require("discord.js");
-const { getTargets } = require("../../dbHandler.js");
+const { getTargets } = require("../../helpers/dbHandler.js");
 
 module.exports = {
 	cooldown: 5,

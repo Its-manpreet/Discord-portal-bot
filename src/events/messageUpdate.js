@@ -1,5 +1,5 @@
 const { Events, MessageFlags, WebhookClient } = require("discord.js");
-const { getTargets, getWebhook, getMessageFromWebhookMap } = require("../dbHandler.js");
+const { getTargets, getWebhook, getMessageFromWebhookMap } = require("../helpers/dbHandler.js");
 
 module.exports = {
 	name: Events.MessageUpdate,

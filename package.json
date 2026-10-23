@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "bun --watch run --env-file .env index.js",
-    "deploy": "bun run --env-file .env deploy-commands.js"
+    "deploy": "bun run --env-file .env ./src/helpers/deploy-commands.js"
   },
   "peerDependencies": {
     "typescript": "^7"

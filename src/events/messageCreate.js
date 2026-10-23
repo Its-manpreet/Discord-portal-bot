@@ -1,5 +1,5 @@
 const { Events, MessageFlags, WebhookClient } = require("discord.js");
-const { getTargets, getWebhook, getStickyMessage, setStickyMessage, addMessageToWebhookMap } = require("../dbHandler.js");
+const { getTargets, getWebhook, getStickyMessage, setStickyMessage, addMessageToWebhookMap } = require("../helpers/dbHandler.js");
 
 function restickStickyMessage(channel, stickyMessageId, linkedChannelID) {
 	if (stickyMessageId) {
