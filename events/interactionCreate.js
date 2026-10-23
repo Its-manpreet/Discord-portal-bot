@@ -1,4 +1,4 @@
-const { Client, Collection, Events, GatewayIntentBits, MessageFlags } = require('discord.js');
+const { Client, Collection, Events, GatewayIntentBits, MessageFlags } = require("discord.js");
 
 module.exports = {
 	name: Events.InteractionCreate,
@@ -24,7 +24,7 @@ module.exports = {
 					flags: MessageFlags.Ephemeral,
 				});
 			}
-		} 
+		}
 		timestamps.set(interaction.user.id, now);
 		setTimeout(() => timestamps.delete(interaction.user.id), cooldownAmount);
 		if (!command) {
@@ -33,17 +33,17 @@ module.exports = {
 		}
 
 		try {
-				await command.execute(interaction);
+			await command.execute(interaction);
 		} catch (error) {
 			console.error(error);
 			if (interaction.replied || interaction.deferred) {
 				await interaction.followUp({
-					content: 'There was an error while executing this command!',
+					content: "There was an error while executing this command!",
 					flags: MessageFlags.Ephemeral,
 				});
 			} else {
 				await interaction.reply({
-					content: 'There was an error while executing this command!',
+					content: "There was an error while executing this command!",
 					flags: MessageFlags.Ephemeral,
 				});
 			}
