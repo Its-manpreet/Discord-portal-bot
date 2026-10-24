@@ -6,11 +6,11 @@ const token = process.env.TOKEN;
 const clientId = process.env.CLIENT_ID;
 const guildId = process.env.GUILD_ID;
 
-const mode = "guild"; // Change this to "global" if you want to deploy commands globally
+const mode = "global"; // Change this to "global" if you want to deploy commands globally
 
 const commands = [];
 
-const foldersPath = path.join(__dirname, '../commands');
+const foldersPath = path.join(__dirname, "../commands");
 const commandFolders = fs.readdirSync(foldersPath);
 
 for (const folder of commandFolders) {
@@ -36,6 +36,9 @@ const rest = new REST().setToken(token);
 (async () => {
 	try {
 		console.log(`Started refreshing ${commands.length} application (/) commands.`);
+
+		await rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: [] }); // Clear existing commands
+		await rest.put(Routes.applicationCommands(clientId), { body: [] }); // Clear existing commands
 
 		let data;
 		if (mode === "global") {

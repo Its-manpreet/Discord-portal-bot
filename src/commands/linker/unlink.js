@@ -20,7 +20,7 @@ module.exports = {
 			if (targetId) {
 				b = await interaction.client.channels.fetch(targetId);
 			} else {
-				return interaction.reply({ content: "This channel isn't linked to another channel!", ephemeral: true });
+				return interaction.reply({ content: "This channel isn't linked to another channel!", flags: MessageFlags.Ephemeral });
 			}
 		}
 
@@ -30,7 +30,7 @@ module.exports = {
 			if (targetId) {
 				a = await interaction.client.channels.fetch(targetId);
 			} else {
-				return interaction.reply({ content: "The specified channel isn't linked to another channel!", ephemeral: true });
+				return interaction.reply({ content: "The specified channel isn't linked to another channel!", flags: MessageFlags.Ephemeral });
 			}
 		}
 
@@ -40,14 +40,14 @@ module.exports = {
 			if (targetId) {
 				b = await interaction.client.channels.fetch(targetId);
 			} else {
-				return interaction.reply({ content: "The specified channel isn't linked to another channel!", ephemeral: true });
+				return interaction.reply({ content: "The specified channel isn't linked to another channel!", flags: MessageFlags.Ephemeral });
 			}
 		}
 
 		if (a.id === b.id) {
 			return interaction.reply({
 				content: "Pick two different channels.",
-				ephemeral: true,
+				flags: MessageFlags.Ephemeral,
 			});
 		}
 
