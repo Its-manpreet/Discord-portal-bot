@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, ChannelType, MessageFlags, PermissionsBitField } = require("discord.js");
+const { SlashCommandBuilder, ChannelType, MessageFlags, PermissionsBitField, EmbedBuilder } = require("discord.js");
 const { getTargets, getRandomAllowedChannel } = require("../../helpers/dbHandler.js");
 
 module.exports = {
@@ -15,16 +15,25 @@ module.exports = {
 					linkedChannels.push({ channel, targets });
 				}
 			}
-			let replyContent = "";
+			const embed = new EmbedBuilder()
+				.setTitle("Channel links")
+				.setColor(0x5865f2);
 			if (linkedChannels.length === 0) {
-				replyContent += "There are no linked channels in this server.\n";
+				embed.addFields({
+					name: "Linked channels",
+					value: "There are no linked channels in this server.",
+				});
 			} else {
-				replyContent += "## Linked channels:\n";
+				const linkedChannelLines = [];
 				for (const { channel, targets } of linkedChannels) {
-					replyContent += `${channel} ↔ <#${targets.values().join(", ")}>\n`;
+					linkedChannelLines.push(
+						`${channel} ↔ ${Array.from(targets.values()).map((target) => `<#${target}>`).join(", ")}`,
+					);
 				}
-				replyContent += "\nTo unlink channels, use the `/unlink` command.";
-				replyContent += "\n";
+				embed.addFields({
+					name: "Linked channels",
+					value: `${linkedChannelLines.join("\n")}\n\nTo unlink channels, use the \`/unlink\` command.`,
+				});
 			}
 			let randomLinkableChannels = [];
 			for (const channel of allChannels.values()) {
@@ -34,15 +43,17 @@ module.exports = {
 				}
 			}
 			if (randomLinkableChannels.length === 0) {
-				replyContent += "There are no channels allowed to be linked with random channels.";
+				embed.addFields({
+					name: "Randomly linkable channels",
+					value: "There are no channels allowed to be linked with random channels.",
+				});
 			} else {
-				replyContent += "## Randomly linkable channels:\n";
-				for (const channel of randomLinkableChannels) {
-					replyContent += `${channel}\n`;
-				}
-				replyContent += "\nTo disallow a channel to be linked with random channels, use the `/allow-random` command again.";
+				embed.addFields({
+					name: "Randomly linkable channels",
+					value: `${randomLinkableChannels.join("\n")}\n\nTo disallow a channel to be linked with random channels, use the \`/allow-random\` command again.`,
+				});
 			}
-			await interaction.editReply(replyContent);
+			await interaction.editReply({ embeds: [embed] });
 		} catch (error) {
 			console.error(error);
 			await interaction.editReply({

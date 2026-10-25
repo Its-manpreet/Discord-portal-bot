@@ -9,6 +9,7 @@ It also includes a random channel link feature to let you link to randoms server
 4. Use the `/allow-random` command to allow a channel to be linked with random channels (rerun to disallow)
 5. Use the `/random` command to link a channel with a random channel (rerun to exit the random queue)
 6. Use the `/help` command to get a list of all commands and their usage
+7. Use the `/report` command to report a user to the bot owner
 
 ## How to self host
 1. Make sure you have Bun installed on your machine. You can download it from [here](https://bun.sh/).

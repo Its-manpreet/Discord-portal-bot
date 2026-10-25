@@ -18,6 +18,7 @@ module.exports = {
 8. **/invite** - Get the invite link for the bot.
 9. **/help** - Show this help message.
 10. **/ping** - Check the bot's latency.
+11. **/report** - Submit a report about a user to the bot owner.
                         `)
 			.setFooter({ text: "Earcups" });
 

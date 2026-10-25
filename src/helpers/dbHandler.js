@@ -216,7 +216,12 @@ export function removeLookingForRandom(channelId) {
 
 export function addBannedUser(userId, reason, unban_time) {
 	bannedUsers.set(userId, { reason, unban_time });
-	db.run("INSERT OR REPLACE INTO banned_users VALUES (?, ?, ?)", userId, reason, unban_time);
+	db.run(
+        "INSERT OR REPLACE INTO banned_users (user_id, reason, unban_time) VALUES (?, ?, ?)", 
+        userId, 
+        reason, 
+        unban_time
+    );
 }
 
 export function removeBannedUser(userId) {
