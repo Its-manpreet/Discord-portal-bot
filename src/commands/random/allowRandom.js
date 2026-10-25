@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, ChannelType, MessageFlags, PermissionsBitField, WebhookClient } = require("discord.js");
 const { addRandomAllowedChannel, getRandomAllowedChannel, removeRandomAllowedChannel,
-		addWebhook, removeWebhook, getWebhook } = require("../../helpers/dbHandler.js");
+		addWebhook, removeWebhook, getWebhook, getTargets } = require("../../helpers/dbHandler.js");
 
 module.exports = {
 	cooldown: 10,
@@ -10,12 +10,11 @@ module.exports = {
 		.addChannelOption((o) => o.setName("channel").setDescription("First channel").addChannelTypes(ChannelType.GuildText).setRequired(false))
 		.addNumberOption((o) => o.setName("age-limit").setDescription("Age limit for the channel").setRequired(false).addChoices(
 			{ name: "13+", value: 13 },
-			{ name: "16+", value: 16 },
-			{ name: "18+", value: 18 }
+			{ name: "16+", value: 16 }
 		)),
 
 	async execute(interaction) {
-		const channel = interaction.options.getChannel("Channel") || interaction.channel;
+		const channel = interaction.options.getChannel("channel") || interaction.channel;
 
 		if (interaction.member.permissions.has([PermissionsBitField.Flags.ManageWebhooks, PermissionsBitField.Flags.ManageMessages, PermissionsBitField.Flags.ManageChannels]) === false) {
 			return interaction.reply({
@@ -35,7 +34,18 @@ module.exports = {
 				flags: MessageFlags.Ephemeral,
 			});
 		}
-
+		if (getTargets(channel.id)) {
+			return interaction.reply({
+				content: "This channel is already linked with another channel. Please unlink it first.",
+				flags: MessageFlags.Ephemeral,
+			});
+		}
+		if (channel.nsfw) {
+			return interaction.reply({
+				content: "NSFW channels cannot be linked with random channels.",
+				flags: MessageFlags.Ephemeral,
+			});
+		}
 		try {
 			await interaction.deferReply({});
 

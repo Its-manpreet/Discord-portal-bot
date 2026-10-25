@@ -1,19 +1,26 @@
-const { SlashCommandBuilder } = require("discord.js");
+const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 
 module.exports = {
-	cooldown: 5,
+      cooldown: 5,
 	data: new SlashCommandBuilder().setName("help").setDescription("Replies with a list of available commands."),
 	async execute(interaction) {
-		await interaction.reply(`
-            run \`/help\` to get a list of available commands.
-            run \`/ping\` to check if the bot is online.
-            run \`/invite\` to get an invite link for the bot.
-            run \`/link\` to request to link two channels together.
-            run \`/unlink\` to unlink two channels.
-            run \`/allow\` to allow the current channel to be linked.
-            run \`/deny\` to deny the current channel from being linked.
-            run \`/allow-random\` to allow the current channel to be linked with random channels. (rerun to disable)
-            run \`/random\` to find a random channel to link with. (rerun to exist queue)
-            `);
+		const embed = new EmbedBuilder()
+			.setColor(0x0099ff)
+			.setTitle("Command List")
+			.setDescription(`
+1. **/link** - Link two channels together.
+2. **/unlink** - Unlink two channels.
+3. **/allow** - Allow a channel to be linked with another channel.
+4. **/deny** - Deny a link request from another channel.
+5. **/allow-random** - Allow a channel to be linked with random channels (rerun to disable).
+6. **/random** - Link the current channel with a random allowed channel (rerun to exit queue).
+7. **/links** - List all the channels linked in this server.
+8. **/invite** - Get the invite link for the bot.
+9. **/help** - Show this help message.
+10. **/ping** - Check the bot's latency.
+                        `)
+			.setFooter({ text: "Earcups" });
+
+		await interaction.reply({ embeds: [embed] });
 	},
 };

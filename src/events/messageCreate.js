@@ -1,5 +1,5 @@
 const { Events, MessageFlags, WebhookClient } = require("discord.js");
-const { getTargets, getWebhook, getStickyMessage, setStickyMessage, addMessageToWebhookMap } = require("../helpers/dbHandler.js");
+const { getTargets, getWebhook, getStickyMessage, setStickyMessage, addMessageToWebhookMap, getMessageFromWebhookMap } = require("../helpers/dbHandler.js");
 
 function restickStickyMessage(channel, stickyMessageId, linkedChannelID) {
 	if (stickyMessageId) {
@@ -33,8 +33,21 @@ module.exports = {
 					id: webhook.webhookId,
 					token: webhook.webhookToken,
 				});
+				let messageToSend = '';
+				if (message.reference && message.reference.messageId) {
+					try {
+						const referencedMessage = await message.channel.messages.fetch(message.reference.messageId);
+						if (referencedMessage) {
+							messageToSend += `-# ↱ **${referencedMessage.author.username}**: ${referencedMessage.content}\n`;
+						}
+
+					} catch (error) {
+						// If the referenced message cannot be fetched, we can ignore it and send the message without a reference.
+					}
+				}
+				messageToSend += message.content;
 				const webhookMessage = await webhookClient.send({
-					content: message.content,
+					content: messageToSend,
 					username: message.author.username,
 					avatarURL: message.author.displayAvatarURL(),
 					flags: MessageFlags.SuppressEmbeds,

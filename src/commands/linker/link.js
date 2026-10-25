@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, ChannelType, MessageFlags, PermissionsBitField } = require("discord.js");
-const { addLink, addWebhook, setStickyMessage, setLinkPending } = require("../../helpers/dbHandler.js");
+const { addLink, addWebhook, setStickyMessage, setLinkPending, getRandomAllowedChannel } = require("../../helpers/dbHandler.js");
 
 module.exports = {
 	cooldown: 10,
@@ -35,6 +35,12 @@ module.exports = {
 		if (a.id === b.id) {
 			return interaction.reply({
 				content: "Pick two different channels.",
+				flags: MessageFlags.Ephemeral,
+			});
+		}
+		if (getRandomAllowedChannel(a.id) || getRandomAllowedChannel(b.id)) {
+			return interaction.reply({
+				content: "One of the channels is allowed to be linked with random channels. Please disallow random linking in both channels before linking them together.",
 				flags: MessageFlags.Ephemeral,
 			});
 		}

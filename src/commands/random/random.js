@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, ChannelType, MessageFlags, PermissionsBitField } = require("discord.js");
-const { addLink, addWebhook, setStickyMessage, setLinkPending,
+const { addLink, addWebhook, setStickyMessage, setLinkPending, getTargets,
 		getRandomAllowedChannel, getLookingForRandom, setLookingForRandom, removeLookingForRandom } = require("../../helpers/dbHandler.js");
 
 module.exports = {
@@ -12,6 +12,12 @@ module.exports = {
 		if (interaction.guild.members.me.permissions.has([PermissionsBitField.Flags.ManageWebhooks, PermissionsBitField.Flags.ManageMessages, PermissionsBitField.Flags.ManageChannels]) === false) {
 			return interaction.reply({
 				content: "I need the `Manage Webhooks`, `Manage Messages`, and `Manage Channels` permissions to link channels.",
+				flags: MessageFlags.Ephemeral,
+			});
+		}
+		if (getTargets(interaction.channel.id)) {
+			return interaction.reply({
+				content: "This channel is already linked with another channel. Please unlink it first.",
 				flags: MessageFlags.Ephemeral,
 			});
 		}

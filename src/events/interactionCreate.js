@@ -1,4 +1,5 @@
 const { Client, Collection, Events, GatewayIntentBits, MessageFlags } = require("discord.js");
+const db = require("../helpers/dbHandler.js");
 
 module.exports = {
 	name: Events.InteractionCreate,
@@ -30,6 +31,19 @@ module.exports = {
 		if (!command) {
 			console.error(`No command matching ${interaction.commandName} was found.`);
 			return;
+		}
+
+		const bannedUser = db.getBannedUser(interaction.user.id);
+		if (bannedUser) {
+			const unbanTime = bannedUser.unban_time ? `<t:${Math.floor(bannedUser.unban_time / 1000)}:R>` : "never";
+			if (bannedUser.unban_time && now > bannedUser.unban_time) {
+				db.removeBannedUser(interaction.user.id);
+			} else {
+				return interaction.reply({
+					content: `You are banned from using this bot. Reason: ${bannedUser.reason}. You will be unbanned ${unbanTime}.`,
+					flags: MessageFlags.Ephemeral,
+				});
+			}
 		}
 
 		try {

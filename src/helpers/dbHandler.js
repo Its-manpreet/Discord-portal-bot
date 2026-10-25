@@ -28,6 +28,14 @@ db.run(`
         age_limit INTEGER
     )
   `);
+db.run(`
+		CREATE TABLE IF NOT EXISTS banned_users (
+			user_id TEXT PRIMARY KEY,
+			reason TEXT,
+			unban_time integer,
+			banned_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		)
+	`);
 
 const links = new Map(); // channelId -> Set of linked channelIds
 const webhooks = new Map(); // channelId -> { webhookId, webhookToken }
@@ -36,6 +44,7 @@ const messageToWebhookMap = new Map(); // messageId -> { webhookId, webhookToken
 const linkPending = new Map(); // sourceChannelId -> targetChannelId
 const randomAllowedChannels = new Map(); // channelId -> { properties (TBD)}
 const lookingForRandom = new Map(); // channelId -> { properties (TBD) }
+const bannedUsers = new Map(); // userId -> { reason, unban_time, banned_on }
 
 function addToMap(source, target) {
 	if (!links.has(source)) links.set(source, new Set());
@@ -64,6 +73,10 @@ function removeFromRandomAllowedChannels(channelId) {
 	randomAllowedChannels.delete(channelId);
 }
 
+function addToBannedUsers(userId, reason, unban_time) {
+	bannedUsers.set(userId, { reason, unban_time });
+}
+
 // Load everything from disk once, at startup
 for (const row of db.query("SELECT * FROM links").all()) {
 	addToMap(row.source_channel_id, row.target_channel_id);
@@ -79,6 +92,10 @@ for (const row of db.query("SELECT * FROM sticky_messages").all()) {
 
 for (const row of db.query("SELECT * FROM random_allowed_channels").all()) {
 	addToRandomAllowedChannels(row.channel_id, { age_limit: row.age_limit });
+}
+
+for (const row of db.query("SELECT * FROM banned_users").all()) {
+	addToBannedUsers(row.user_id, row.reason, row.unban_time);
 }
 
 const insert = db.prepare("INSERT OR IGNORE INTO links VALUES (?, ?)");
@@ -195,4 +212,18 @@ export function getLookingForRandom(filter=null) {
 
 export function removeLookingForRandom(channelId) {
 	lookingForRandom.delete(channelId);
+}
+
+export function addBannedUser(userId, reason, unban_time) {
+	bannedUsers.set(userId, { reason, unban_time });
+	db.run("INSERT OR REPLACE INTO banned_users VALUES (?, ?, ?)", userId, reason, unban_time);
+}
+
+export function removeBannedUser(userId) {
+	bannedUsers.delete(userId);
+	db.run("DELETE FROM banned_users WHERE user_id = ?", userId);
+}
+
+export function getBannedUser(userId) {
+	return bannedUsers.get(userId); // { reason, unban_time } or undefined
 }

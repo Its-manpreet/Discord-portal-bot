@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, ChannelType, MessageFlags, PermissionsBitField, WebhookClient } = require("discord.js");
-const { removeLink, removeWebhook, removeStickyMessage, getStickyMessage, getTargets, getWebhook } = require("../../helpers/dbHandler.js");
+const { removeLink, removeWebhook, removeStickyMessage, getStickyMessage, getTargets, getWebhook, getRandomAllowedChannel } = require("../../helpers/dbHandler.js");
 
 module.exports = {
 	cooldown: 5,
@@ -51,13 +51,14 @@ module.exports = {
 			});
 		}
 
-		if (interaction.member.permissions.has([PermissionsBitField.Flags.ManageWebhooks, PermissionsBitField.Flags.ManageMessages, PermissionsBitField.Flags.ManageChannels]) === false) {
-			return interaction.reply({
-				content: "You need the `Manage Webhooks`, `Manage Messages`, and `Manage Channels` permissions to use this command.",
-				flags: MessageFlags.Ephemeral,
-			});
+		if (!getRandomAllowedChannel(a.id) || !getRandomAllowedChannel(b.id)) {
+			if (interaction.member.permissions.has([PermissionsBitField.Flags.ManageWebhooks, PermissionsBitField.Flags.ManageMessages, PermissionsBitField.Flags.ManageChannels]) === false) {
+				return interaction.reply({
+					content: "You need the `Manage Webhooks`, `Manage Messages`, and `Manage Channels` permissions to use this command.",
+					flags: MessageFlags.Ephemeral,
+				});
+			}
 		}
-
 		await interaction.deferReply({});
 
 		if (!getTargets(a.id)?.has(b.id)) {
